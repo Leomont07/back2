@@ -25,19 +25,23 @@ router.get('/getInfo', (req, res) => {
 
 // POST /register
 router.post('/register', async (req, res) => {
-    const { email, username, password } = req.body;
+    const { email, username, password, grado, grupo } = req.body;
 
-    if (!email || !username || !password) {
-        return res.status(400).json({ message: 'Missing fields' });
+    if (!email || !username || !password || !grado || !grupo) {
+        return res.status(400).json({ message: 'Faltan campos por llenar' });
     }
     if (!validateEmail(email)) {
-        return res.status(400).json({ message: 'Invalid email format' });
+        return res.status(400).json({ message: 'Formato de email inválido' });
     }
-    if (password.length < 6) {
-        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    if (password.length < 8) {
+        return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres' });
     }
 
     try {
+        const userRepetido = await db.collection('users').where('email', '==', email).get();
+        if (!userRepetido.empty) {
+        return res.status(400).json({ message: 'Este correo ya esta registrado' });
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const secret = speakeasy.generateSecret({
@@ -49,6 +53,8 @@ router.post('/register', async (req, res) => {
             username,
             email,
             password: hashedPassword,
+            grado,
+            grupo,
             totpSecret: secret.base32,
         });
 
