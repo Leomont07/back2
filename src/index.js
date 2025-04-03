@@ -43,7 +43,24 @@ const logger = winston.createLogger({
 });
 
 const server = express();
-server.use(cors({ origin: "http://localhost:3000", credentials: true }));
+const allowedOrigins = [
+    'http://localhost:3000', 
+    'https://front-seguridad.vercel.app', 
+  ];
+  
+  server.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true, 
+    })
+  );
 server.use(bodyParser.json());
 
 // Logging middleware
