@@ -136,7 +136,7 @@ router.post('/verify-mfa', async (req, res) => {
             return res.status(400).json({ message: 'Invalid OTP' });
         }
 
-        const token = jwt.sign({ id: userId, email: userData.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: userId, username: userData.username, email: userData.email, grado: userData.grado, grupo: userData.grupo }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         console.log('JWT generado');
 
@@ -146,10 +146,11 @@ router.post('/verify-mfa', async (req, res) => {
     }
 });
 
+
 // GET /logs
 router.get('/logs', async (req, res) => {
     try {
-        const logsSnapshot = await db.collection('logs').where('server', '==', 'servidor2').get();
+        const logsSnapshot = await db.collection('logs').where('server', '==', 'Servidor2').get();
         const logs = [];
         logsSnapshot.forEach(doc => {
             logs.push({ id: doc.id, ...doc.data() });
